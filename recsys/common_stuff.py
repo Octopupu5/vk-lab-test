@@ -5,6 +5,7 @@ import torch
 from torch import nn
 import torch.optim as optim
 from timm import create_model
+from transformers import BertModel
 
 import tqdm.notebook as tq
 
@@ -83,6 +84,46 @@ class PictureDataset(Dataset):
             "target" : target
         }
     
+class TextDataset(Dataset):
+    def __init__(self, df, tokenizer, transform=None):
+        self.df = df
+        self.transform = transform
+        self.tokenizer = tokenizer
+        self.max_len = 512
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        cell = self.df.iloc[idx]
+        
+        img = Image.open(BytesIO(b64decode(cell["photo"])))
+        img = img.convert("RGB")
+        img = self.transform(img)
+        
+        target = cell["open_photo"] / cell["view"] if cell["view"] > 0 else 0
+
+        msg = " ".join(cell["splitted"])
+        inputs = self.tokenizer.encode_plus(
+            msg,
+            None,
+            add_special_tokens=True,
+            max_length=self.max_len,
+            padding='max_length',
+            return_token_type_ids=True,
+            truncation=True,
+            return_attention_mask=True,
+            return_tensors='pt'
+        )
+        
+        return {
+            "img" : img,
+            "input_ids" : inputs["input_ids"].flatten(),
+            "attention_mask" : inputs["attention_mask"].flatten(),
+            "token_type_ids" : inputs["token_type_ids"].flatten(),
+            "target" : target
+        }
+    
 class BCEWeighted(nn.BCELoss):
     def __init__(self, alpha):
         super().__init__(reduction='none')
@@ -114,6 +155,28 @@ class ConvNeXt(nn.Module):
 
     def forward(self, image_input):
         return self.answer(self.image_model(image_input))
+
+class MultiSolver(nn.Module):
+    def __init__(self, text_embedding_size, image_embedding_size):
+        super(MultiSolver, self).__init__()
+        convnext = create_model("convnext_tiny", pretrained=True)
+        bertmodel = BertModel.from_pretrained("google-bert/bert-base-multilingual-cased", return_dict=True)
+        self.text_model = bertmodel
+        self.image_model = convnext
+        self.image_model.head.fc = nn.Linear(in_features=768, out_features=768, bias=True)
+        self.fc = nn.Linear(text_embedding_size + image_embedding_size, 1)
+        self.answer = nn.Sigmoid()
+
+    def forward(self, input_ids, attn_mask, token_type_ids, image_input):
+        text_emb = self.text_model(
+            input_ids,
+            attention_mask=attn_mask,
+            token_type_ids=token_type_ids
+        ).pooler_output
+        image_emb = self.image_model(image_input)
+        combined = torch.cat((text_emb, image_emb), dim=1)
+        output = self.answer(self.fc(combined))
+        return output
 
 max_size = 224
 transform = A.Compose([
