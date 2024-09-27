@@ -4,6 +4,7 @@ from albumentations.pytorch import ToTensorV2
 import torch
 from torch import nn
 import torch.optim as optim
+from timm import create_model
 
 import tqdm.notebook as tq
 
@@ -93,6 +94,26 @@ class BCEWeighted(nn.BCELoss):
         weighted_loss = (loss * weights).mean()
         return weighted_loss
 
+class EfficientNet(nn.Module):
+    def __init__(self):
+        super(EfficientNet, self).__init__()
+        self.image_model = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_efficientnet_b0', pretrained=True)
+        self.image_model.classifier.fc = nn.Linear(in_features=1280, out_features=1, bias=True)
+        self.answer = nn.Sigmoid()
+
+    def forward(self, image_input):
+        return self.answer(self.image_model(image_input))
+    
+class ConvNeXt(nn.Module):
+    def __init__(self):
+        super(ConvNeXt, self).__init__()
+        convnext = create_model("convnext_tiny", pretrained=True)
+        self.image_model = convnext
+        self.image_model.head.fc = nn.Linear(in_features=768, out_features=1, bias=True)
+        self.answer = nn.Sigmoid()
+
+    def forward(self, image_input):
+        return self.answer(self.image_model(image_input))
 
 max_size = 224
 transform = A.Compose([
