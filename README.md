@@ -38,7 +38,7 @@
 
 > Таблица с графиками распределений предсказаний ConvNeXt + BERT можете увидеть ниже; голубым цветом обозначено распределение истинных таргетов, синим — распределение предсказаний модели
 
-<img src="./recsys/pictures/comparison_convbert.png" align="center" height="450"/>
+<img src="./recsys/pictures/comparison_convbert.png" align="center" height="300"/>
 
 ### Пример предсказания ConvNeXt+Bert и EfficientNet
 
