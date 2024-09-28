@@ -81,10 +81,11 @@ class PictureDataset(Dataset):
 
         return {
             "img" : img,
-            "target" : target
+            "target" : target,
+            "text" : self.df.iloc[idx]["text"]
         }
     
-class TextDataset(Dataset):
+class TextPicDataset(Dataset):
     def __init__(self, df, tokenizer, transform=None):
         self.df = df
         self.transform = transform
@@ -144,6 +145,11 @@ class EfficientNet(nn.Module):
 
     def forward(self, image_input):
         return self.answer(self.image_model(image_input))
+  
+def load_effnet_model(model_path):
+    model = EfficientNet()
+    model.load_state_dict(torch.load(model_path, weights_only=True))
+    return model
     
 class ConvNeXt(nn.Module):
     def __init__(self):
@@ -155,6 +161,11 @@ class ConvNeXt(nn.Module):
 
     def forward(self, image_input):
         return self.answer(self.image_model(image_input))
+
+def load_convnext_model(model_path):
+    model = ConvNeXt()
+    model.load_state_dict(torch.load(model_path, weights_only=True))
+    return model
 
 class MultiSolver(nn.Module):
     def __init__(self, text_embedding_size, image_embedding_size):
@@ -177,6 +188,11 @@ class MultiSolver(nn.Module):
         combined = torch.cat((text_emb, image_emb), dim=1)
         output = self.answer(self.fc(combined))
         return output
+
+def load_convbert_model(model_path):
+    model = MultiSolver(768, 768)
+    model.load_state_dict(torch.load(model_path, weights_only=True))
+    return model
 
 max_size = 224
 transform = A.Compose([
