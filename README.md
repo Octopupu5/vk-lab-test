@@ -30,7 +30,7 @@
 
 > Таблица с графиками распределений предсказаний свёрточных нейронных сетей можете увидеть ниже; голубым цветом обозначено распределение истинных таргетов, синим — распределение предсказаний модели.
 
-<img src="./recsys/pictures/comparison_cnn.png" align="center" height="600"/>
+<img src="./recsys/pictures/comparison_cnn.png" align="center" height="400"/>
 
 ### Совмещение текста и картинок
 
@@ -38,7 +38,7 @@
 
 > Таблица с графиками распределений предсказаний ConvNeXt + BERT можете увидеть ниже; голубым цветом обозначено распределение истинных таргетов, синим — распределение предсказаний модели
 
-<img src="./recsys/pictures/comparison_convbert.png" align="center" height="600"/>
+<img src="./recsys/pictures/comparison_convbert.png" align="center" height="450"/>
 
 ### Пример предсказания ConvNeXt+Bert и EfficientNet
 
@@ -59,7 +59,7 @@
 
 > Фотографии постов
 
-<img src="./recsys/pictures/sample_output.png" align="center" height="600"/>
+<img src="./recsys/pictures/sample_output.png" align="center" height="300"/>
 
 ### В чём главная проблема (imho)
 
