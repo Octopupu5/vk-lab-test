@@ -59,7 +59,7 @@
 
 > Фотографии постов
 
-<img src="./recsys/pictures/sample_output.png" align="center" height="300"/>
+<img src="./recsys/pictures/sample_output.png" align="center" height="100" width="640"/>
 
 ### В чём главная проблема (imho)
 
