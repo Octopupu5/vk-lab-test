@@ -40,6 +40,8 @@
 
 <img src="./recsys/pictures/comparison_convbert.png" align="center" height="300"/>
 
+Результат получился более чем впечатляющий, хотя аномальные посты (с таргетами 0.3-0.5) модели не видят.
+
 ### Пример предсказания ConvNeXt+Bert и EfficientNet
 
 - 0.0655, 0.1038, 0.0163, 0.0339, 0.0104, 0.0590, 0.0634, 0.0267 - inference EfficientNet
